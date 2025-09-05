@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import {
@@ -18,6 +18,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 
+// Proper type for Random User API
+interface RandomUserResult {
+  name: { first: string; last: string };
+  dob: { age: number };
+  location: { city: string; country: string };
+  picture: { large: string };
+  email: string;
+}
+
 export default function Home() {
   const { users, currentIndex, likedUsers } = useSelector(
     (state: RootState) => state.user
@@ -27,27 +36,11 @@ export default function Home() {
   const router = useRouter();
   const [matchPercent, setMatchPercent] = useState<number>(0);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("likedUsers");
-    if (stored) dispatch(setLikedUsers(JSON.parse(stored)));
-
-    if (users.length === 0) fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("likedUsers", JSON.stringify(likedUsers));
-  }, [likedUsers]);
-
-  useEffect(() => {
-    if (users.length > 0 && currentIndex < users.length) {
-      setMatchPercent(Math.floor(Math.random() * 51) + 50); 
-    }
-  }, [currentIndex, users]);
-
-  const fetchUsers = async () => {
+  // Wrap fetchUsers in useCallback to satisfy useEffect dependencies
+  const fetchUsers = useCallback(async () => {
     const res = await fetch("https://randomuser.me/api/?results=20");
     const data = await res.json();
-    const formattedUsers: User[] = data.results.map((u: any) => ({
+    const formattedUsers: User[] = data.results.map((u: RandomUserResult) => ({
       name: `${u.name.first} ${u.name.last}`,
       age: u.dob.age,
       location: `${u.location.city}, ${u.location.country}`,
@@ -57,7 +50,24 @@ export default function Home() {
     }));
     dispatch(setUsers(formattedUsers));
     dispatch(resetIndex());
-  };
+  }, [dispatch]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("likedUsers");
+    if (stored) dispatch(setLikedUsers(JSON.parse(stored)));
+
+    if (users.length === 0) fetchUsers();
+  }, [dispatch, fetchUsers, users.length]); // fixed dependency warning
+
+  useEffect(() => {
+    localStorage.setItem("likedUsers", JSON.stringify(likedUsers));
+  }, [likedUsers]);
+
+  useEffect(() => {
+    if (users.length > 0 && currentIndex < users.length) {
+      setMatchPercent(Math.floor(Math.random() * 51) + 50);
+    }
+  }, [currentIndex, users]);
 
   const handleSwipe = (direction: "left" | "right") => {
     if (direction === "right") dispatch(swipeRight());
@@ -105,10 +115,12 @@ export default function Home() {
         transition={{ duration: 0.3 }}
       >
         <Image
-          src={user.photo} 
+          src={user.photo}
           alt={user.name}
           className="w-full h-full object-cover select-none"
           draggable={false}
+          width={320}
+          height={500}
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
           <h2 className="text-2xl font-bold">

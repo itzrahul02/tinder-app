@@ -2,7 +2,7 @@
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { removeLikedUser } from "@/store/userSlice";
+import { removeLikedUser, User } from "@/store/userSlice";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -35,11 +35,13 @@ export default function LikedPage() {
     <div className="min-h-screen p-6 bg-gradient-to-r from-pink-700 to-yellow-500">
       <h1 className="text-3xl font-bold mb-6 text-center">Liked Users</h1>
       <div className="flex justify-center items-center gap-6 flex-wrap">
-        {likedUsers.map((user, index) => (
+        {likedUsers.map((user: User, index: number) => (
           <Card key={index} className="w-64 shadow-md">
             <Image
               src={user.photo}
               alt={user.name}
+              width={256}
+              height={160}
               className="w-full h-40 object-cover rounded-t-xl"
             />
             <CardHeader>

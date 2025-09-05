@@ -57,6 +57,8 @@ export default function ProfilePage() {
         <Image
           src={user.photo}
           alt={user.name}
+          width={60}
+          height={60}
           className="w-64 h-64 object-cover rounded-2xl shadow-lg"
         />
 

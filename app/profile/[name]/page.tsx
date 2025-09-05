@@ -54,7 +54,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-600 to-yellow-500 p-6">
       <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col md:flex-row items-center gap-8 max-w-4xl w-full">
-        <Image
+        <img
           src={user.photo}
           alt={user.name}
           width={60}

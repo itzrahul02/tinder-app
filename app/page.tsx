@@ -114,7 +114,7 @@ export default function Home() {
         animate={controls}
         transition={{ duration: 0.3 }}
       >
-        <Image
+        <img
           src={user.photo}
           alt={user.name}
           className="w-full h-full object-cover select-none"

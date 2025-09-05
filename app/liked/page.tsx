@@ -37,7 +37,7 @@ export default function LikedPage() {
       <div className="flex justify-center items-center gap-6 flex-wrap">
         {likedUsers.map((user: User, index: number) => (
           <Card key={index} className="w-64 shadow-md">
-            <Image
+            <img
               src={user.photo}
               alt={user.name}
               width={256}

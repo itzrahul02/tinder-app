@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 
 export default function LikedPage() {
   const likedUsers = useSelector((state: RootState) => state.user.likedUsers);
@@ -36,7 +37,7 @@ export default function LikedPage() {
       <div className="flex justify-center items-center gap-6 flex-wrap">
         {likedUsers.map((user, index) => (
           <Card key={index} className="w-64 shadow-md">
-            <img
+            <Image
               src={user.photo}
               alt={user.name}
               className="w-full h-40 object-cover rounded-t-xl"

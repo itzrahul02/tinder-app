@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import Image from "next/image";
 
 export default function Home() {
   const { users, currentIndex, likedUsers } = useSelector(
@@ -103,7 +104,7 @@ export default function Home() {
         animate={controls}
         transition={{ duration: 0.3 }}
       >
-        <img
+        <Image
           src={user.photo} 
           alt={user.name}
           className="w-full h-full object-cover select-none"

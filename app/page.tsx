@@ -102,7 +102,7 @@ export default function Home() {
   return (
     <>
       <Nav />
-      <main className="flex flex-col min-h-screen md:min-h-screen lg:min-h-[93vh] items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-500 gap-6 px-2 sm:px-4">
+      <main className="flex flex-col min-h-[90vh] sm:min-h-screen md:min-h-screen lg:min-h-[93vh] items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-500 gap-6 px-2 sm:px-4">
         
         <div className="flex items-center justify-between w-full max-w-xs  text-white text-xs sm:text-sm">
           <span>

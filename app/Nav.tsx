@@ -13,18 +13,18 @@ export const Nav = () => {
       shadow-lg w-full gap-3 sm:gap-0">
 
       <div
-        className="text-2xl lg:text-3xl sm:text-2xl md:text-xl font-extrabold 
+        className="text-lg lg:text-3xl sm:text-2xl md:text-xl font-extrabold 
         bg-gradient-to-r from-purple-950 to-indigo-900 
         bg-clip-text text-transparent 
         drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] 
         "
       >
-        💕TinderSwipe
+        TinderSwipe
       </div>
 
       <div className="flex justify-end w-full sm:w-auto">
         <Button
-          className="font-semibold sm:font-bold text-xl sm:text-md bg-black/0 hover:bg-black/10 transition"
+          className="font-semibold sm:font-bold text-sm sm:text-md bg-black/0 hover:bg-black/10 transition"
           onClick={() => router.push("/liked")}
         >
           Liked Profiles

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -16,9 +16,8 @@ import {
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import Image from "next/image";
+import { Nav } from "./Nav";
 
-// Proper type for Random User API
 interface RandomUserResult {
   name: { first: string; last: string };
   dob: { age: number };
@@ -31,15 +30,18 @@ export default function Home() {
   const { users, currentIndex, likedUsers } = useSelector(
     (state: RootState) => state.user
   );
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-20, 20]);
+
   const dispatch = useDispatch();
   const controls = useAnimation();
   const router = useRouter();
   const [matchPercent, setMatchPercent] = useState<number>(0);
 
-  // Wrap fetchUsers in useCallback to satisfy useEffect dependencies
   const fetchUsers = useCallback(async () => {
     const res = await fetch("https://randomuser.me/api/?results=20");
     const data = await res.json();
+
     const formattedUsers: User[] = data.results.map((u: RandomUserResult) => ({
       name: `${u.name.first} ${u.name.last}`,
       age: u.dob.age,
@@ -55,9 +57,8 @@ export default function Home() {
   useEffect(() => {
     const stored = localStorage.getItem("likedUsers");
     if (stored) dispatch(setLikedUsers(JSON.parse(stored)));
-
     if (users.length === 0) fetchUsers();
-  }, [dispatch, fetchUsers, users.length]); // fixed dependency warning
+  }, [dispatch, fetchUsers, users.length]);
 
   useEffect(() => {
     localStorage.setItem("likedUsers", JSON.stringify(likedUsers));
@@ -77,8 +78,8 @@ export default function Home() {
 
   if (users.length === 0 || currentIndex >= users.length) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-100">
-        <h1 className="text-2xl font-bold">
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-500">
+        <h1 className="text-2xl font-bold text-white">
           {users.length === 0 ? "Loading..." : "No more profiles"}
         </h1>
       </main>
@@ -99,73 +100,104 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-r from-pink-600 to-yellow-500 gap-6">
-      <motion.div
-        key={user.email}
-        className="relative w-80 h-[500px] rounded-2xl shadow-lg bg-black overflow-hidden cursor-grab select-none"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        onDragEnd={(_, info) => {
-          if (info.offset.x > 100)
-            controls.start({ x: 300, opacity: 0 }).then(() => handleSwipe("right"));
-          else if (info.offset.x < -100)
-            controls.start({ x: -300, opacity: 0 }).then(() => handleSwipe("left"));
-        }}
-        animate={controls}
-        transition={{ duration: 0.3 }}
-      >
-        <img
-          src={user.photo}
-          alt={user.name}
-          className="w-full h-full object-cover select-none"
-          draggable={false}
-          width={320}
-          height={500}
+    <>
+      <Nav />
+      <main className="flex flex-col min-h-screen md:min-h-screen lg:min-h-[93vh] items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-500 gap-6 px-2 sm:px-4">
+        
+        <div className="flex items-center justify-between w-full max-w-xs  text-white text-xs sm:text-sm">
+          <span>
+            Profile {currentIndex + 1} of {users.length}
+          </span>
+          <span>{Math.floor(((currentIndex + 1) / users.length) * 100)}%</span>
+        </div>
+        
+        <Progress
+          value={((currentIndex + 1) / users.length) * 100}
+          className="w-full max-w-xs  h-2"
         />
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
-          <h2 className="text-2xl font-bold">
-            {user.name}, {user.age}
-          </h2>
-          <p className="text-sm">{user.location}</p>
 
-          <div className="mt-2">
-            <p className="text-xs">Match: {matchPercent}%</p>
-            <Progress value={matchPercent} className="h-2" />
+        <motion.div
+          key={user.email}
+          className="relative w-full max-w-xs  rounded-2xl shadow-xl bg-white overflow-hidden cursor-grab select-none"
+          drag
+          style={{ x, rotate }}
+          onDragEnd={(_, info) => {
+            if (info.offset.x > 100)
+              controls
+                .start({ x: 300, y: -100, rotate: 20, opacity: 0 })
+                .then(() => handleSwipe("right"));
+            else if (info.offset.x < -100)
+              controls
+                .start({ x: -300, y: -100, rotate: -20, opacity: 0 })
+                .then(() => handleSwipe("left"));
+            else controls.start({ x: 0, y: 0, rotate: 0, opacity: 1 });
+          }}
+          animate={controls}
+          transition={{ duration: 0.5 }}
+        >
+          <img
+            src={user.photo}
+            alt={user.name}
+            className="w-full h-52 sm:h-60 object-cover select-none"
+            draggable={false}
+          />
+          <div className="p-3 sm:p-4">
+            <h2 className="text-lg sm:text-xl break-words font-bold">
+              {user.name}, {user.age}
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500">📍 {user.location}</p>
+            <p className="mt-2 text-xs sm:text-sm text-gray-700 line-clamp-3">{user.bio}</p>
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className="px-2 py-1 text-xs rounded-full bg-pink-100 text-pink-600">
+                Art
+              </span>
+              <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">
+                Photography
+              </span>
+              <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-600">
+                Pets
+              </span>
+            </div>
+
+            <Button onClick={() => handleViewProfile(user)} className="mt-4 w-full text-sm sm:text-base">
+              View Full Profile
+            </Button>
           </div>
+          <div className="absolute top-3 left-3 bg-pink-500 text-white text-xs px-2 sm:px-3 py-1 rounded-full">
+            {matchPercent}% match
+          </div>
+        </motion.div>
 
+        <div className="flex gap-3 sm:gap-4">
           <Button
-            onClick={() => handleViewProfile(user)}
-            className="mt-4 w-full"
+            onClick={() => {
+              controls
+                .start({ x: -500, y: -100, rotate: -20, opacity: 0 })
+                .then(() => handleSwipe("left"));
+            }}
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-500 hover:bg-red-600 text-xl sm:text-2xl shadow-lg"
           >
-            View Full Profile
+            ✖
+          </Button>
+          <Button
+            onClick={() => dispatch(undoSwipe())}
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-500 hover:bg-gray-600 text-xl sm:text-2xl shadow-lg"
+          >
+            ↩
+          </Button>
+          <Button
+            onClick={() => {
+              controls
+                .start({ x: 500, y: -100, rotate: 20, opacity: 0 })
+                .then(() => handleSwipe("right"));
+            }}
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-green-500 hover:bg-green-600 text-xl sm:text-2xl shadow-lg"
+          >
+            ❤
           </Button>
         </div>
-      </motion.div>
 
-      <div className="flex gap-6">
-        <Button
-          onClick={() => handleSwipe("left")}
-          className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-2xl"
-        >
-          ✖
-        </Button>
-        <Button
-          onClick={() => dispatch(undoSwipe())}
-          className="w-14 h-14 rounded-full bg-gray-500 hover:bg-gray-600 text-2xl"
-        >
-          ↩
-        </Button>
-        <Button
-          onClick={() => handleSwipe("right")}
-          className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-2xl"
-        >
-          ❤
-        </Button>
-      </div>
-
-      <div className="fixed top-4 right-4 z-50">
-        <Button onClick={() => router.push("/liked")}>View Liked Users</Button>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

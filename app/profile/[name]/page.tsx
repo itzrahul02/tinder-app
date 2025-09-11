@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { swipeRight, removeLikedUser } from "@/store/userSlice";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -24,6 +23,7 @@ export default function ProfilePage() {
       : Array.isArray(rawName)
       ? rawName.join(" ")
       : "Unknown";
+
   const user = {
     name,
     age: Number(searchParams.get("age")) || 0,
@@ -40,40 +40,39 @@ export default function ProfilePage() {
 
   const handleLike = () => {
     if (!liked) {
-      dispatch(swipeRight()); 
-      setLiked(true);
+      dispatch(swipeRight(user));
     } else {
       const index = likedUsers.findIndex((u) => u.email === user.email);
       if (index !== -1) {
         dispatch(removeLikedUser(index));
       }
-      setLiked(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-600 to-yellow-500 p-6">
-      <div className="bg-white rounded-2xl shadow-xl p-6 flex flex-col md:flex-row items-center gap-8 max-w-4xl w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-600 to-yellow-500 p-4 sm:p-6 md:p-10">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-8 max-w-4xl w-full">
         <img
           src={user.photo}
           alt={user.name}
-          width={60}
-          height={60}
-          className="w-64 h-64 object-cover rounded-2xl shadow-lg"
+          className="w-40 h-40 sm:w-56 sm:h-56 md:w-48 md:h-48 lg:h-64 lg:w-64 object-cover rounded-2xl shadow-lg"
         />
 
-        <div className="flex flex-col text-center md:text-left gap-4">
-          <h1 className="text-4xl font-bold text-gray-900">
-            {user.name}, <span className="text-pink-600">{user.age}</span>
+        <div className="flex  flex-col text-center md:text-left gap-3 sm:gap-4 w-full">
+          <h1 className="text-2xl sm:text-3xl break-words font-bold text-gray-900">
+            {user.name},{" "}
+            <span className="text-pink-600">{user.age}</span>
           </h1>
-          <p className="text-gray-600 text-lg">{user.location}</p>
-          <p className="text-sm text-gray-700">📧 {user.email}</p>
-          <p className="mt-2 text-gray-800 leading-relaxed">{user.bio}</p>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg">{user.location}</p>
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 break-words">📧 {user.email}</p>
+          <p className="text-sm sm:text-base md:text-sm lg:text-lg text-gray-800 leading-relaxed">
+            {user.bio}
+          </p>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
             <button
               onClick={handleLike}
-              className={`px-6 py-2 rounded-xl font-semibold shadow transition ${
+              className={`px-5 sm:px-6 py-2 rounded-xl font-semibold shadow transition ${
                 liked
                   ? "bg-green-500 text-white hover:bg-green-600"
                   : "bg-pink-500 text-white hover:bg-pink-600"
@@ -84,13 +83,14 @@ export default function ProfilePage() {
 
             <button
               onClick={() => router.push("/liked")}
-              className="px-6 py-2 rounded-xl bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition"
+              className="px-5 lg:px-4 md:px-3 sm:px-6 py-2 rounded-xl bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition"
             >
               View Liked
             </button>
+
             <button
-              onClick={() => router.push("/")}
-              className="px-6 py-2 rounded-xl bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition"
+              onClick={() => router.back()}
+              className="px-5 lg:px-4 md:px-3 sm:px-6 py-2 rounded-xl bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition"
             >
               Back
             </button>

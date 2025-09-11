@@ -12,14 +12,14 @@ export type User = {
 interface HistoryAction {
   type: "swipeLeft" | "swipeRight" | "removeLiked";
   user: User;
-  index?: number; // for removeLiked
+  index?: number; 
 }
-
+ 
 interface UserState {
   users: User[];
   currentIndex: number;
   likedUsers: User[];
-  history: HistoryAction[]; // store past actions for undo
+  history: HistoryAction[]; 
 }
 
 const initialState: UserState = {
@@ -28,7 +28,7 @@ const initialState: UserState = {
   likedUsers: [],
   history: [],
 };
-
+ 
 export const userSlice = createSlice({
   name: "users",
   initialState,
@@ -36,14 +36,16 @@ export const userSlice = createSlice({
     setUsers: (state, action: PayloadAction<User[]>) => {
       state.users = action.payload;
     },
-    swipeRight: (state) => {
-      const currentUser = state.users[state.currentIndex];
-      if (currentUser) {
+
+    swipeRight: (state,action:PayloadAction<User|undefined>) => {
+      const currentUser = action?.payload??state.users[state.currentIndex]
+      if (currentUser && !state.likedUsers.find(u=>u.email===currentUser.email)) {
         state.likedUsers.push(currentUser);
         state.history.push({ type: "swipeRight", user: currentUser });
       }
       state.currentIndex++;
     },
+
     swipeLeft: (state) => {
       const currentUser = state.users[state.currentIndex];
       if (currentUser) {
@@ -51,12 +53,14 @@ export const userSlice = createSlice({
       }
       state.currentIndex++;
     },
+
     setLikedUsers: (state, action: PayloadAction<User[]>) => {
       state.likedUsers = action.payload;
     },
+    
     removeLikedUser: (state, action: PayloadAction<number>) => {
       const removed = state.likedUsers[action.payload];
-      if (removed) {
+      if (removed) { 
         state.history.push({
           type: "removeLiked",
           user: removed,
@@ -70,11 +74,10 @@ export const userSlice = createSlice({
     },
     undoSwipe: (state) => {
       const last = state.history.pop();
-      if (!last) return;
-
-      switch (last.type) {
+      if (!last) return; 
+      
+      switch (last.type) { 
         case "swipeRight":
-          // remove from liked
           state.likedUsers = state.likedUsers.filter(
             (u) => u.email !== last.user.email
           );
